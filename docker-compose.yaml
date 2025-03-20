@@ -1,0 +1,51 @@
+services:
+  app:
+    container_name: app
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    networks:
+      - backend
+    depends_on:
+      - postgres
+    command: bash -c 'while !</dev/tcp/postgres/5432; do sleep 3; done; python -m src.database.create_db;python main.py'
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://admin:admin@postgres:5432/admin
+
+  nginx_web:
+    container_name: nginx_web
+    image: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./static:/usr/share/nginx/html
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+    networks:
+      - backend
+
+  postgres:
+    container_name: postgres
+    image: postgres
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=admin
+      - log_destination=stderr
+      - logging_collector=on
+      - log_directory='/var/log/postgresql'
+      - log_filename='postgresql-%Y-%m-%d_%H%M%S.log'
+    ports:
+      - '5432:5432'
+    networks:
+      - backend
+    volumes:
+      - /var/lib/postgresql/data
+
+networks:
+  backend:
+    driver: bridge
+
+

@@ -19,7 +19,7 @@
 
 ###  Клонирование репозитория
 ```
-git clone https://gitlab.skillbox.ru/artur_lazarevich/python_advanced_diploma
+git clone https://github.com/archibaldlazarevich/diploma.git
 ```
 
 ###  Запуск в Docker
